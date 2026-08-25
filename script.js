@@ -7,11 +7,11 @@
 /* ---------------- Data ---------------- */
 
 const SQUISHIES = [
-  { id: 1, name: "Berry Blob",    emoji: "🍓", img: "images/squishy1.jpg" },
-  { id: 2, name: "Cloud Puff",    emoji: "☁️", img: "images/squishy2.jpg" },
-  { id: 3, name: "Star Sparkle",  emoji: "⭐", img: "images/squishy3.jpg" },
-  { id: 4, name: "Kitty Cheetah", emoji: "🐆", img: "images/squishy4.jpg" },
-  { id: 5, name: "Rainbow Swirl", emoji: "🌈", img: "images/squishy5.jpg" },
+  { id: 1, name: "Squish Cube",    emoji: "🩷", img: "images/squishy1.png" },
+  { id: 2, name: "Galaxy Dumpling", emoji: "🥟", img: "images/squishy2.png" },
+  { id: 3, name: "Pink Bao",       emoji: "🥮", img: "images/squishy3.png" },
+  { id: 4, name: "Galaxy Blob",    emoji: "🔮", img: "images/squishy4.png" },
+  { id: 5, name: "Butter Stick",   emoji: "🧈", img: "images/squishy5.png" },
 ];
 
 const FREE_SQUISHY_ID = 1;
