@@ -87,6 +87,132 @@ function squishyThumbHTML(squishy, size, extraClass = "") {
     </div>`;
 }
 
+/* ---- Canvas "squish" effect for the big active squishy ----
+   Draws the squishy (photo or emoji) onto a canvas, then on click
+   warps its pixels with a radial pinch (an "inverted fisheye") that
+   sucks the image toward its center and releases — like it's being
+   pressed by a finger. */
+
+const squishyImageCache = {};
+
+function getSquishyImage(squishy) {
+  let entry = squishyImageCache[squishy.id];
+  if (entry) return entry;
+  entry = { img: new Image(), status: "loading" };
+  entry.img.onload = () => {
+    entry.status = "loaded";
+    if (state.active === squishy.id) redrawActiveCanvas();
+  };
+  entry.img.onerror = () => {
+    entry.status = "error";
+  };
+  entry.img.src = squishy.img;
+  squishyImageCache[squishy.id] = entry;
+  return entry;
+}
+
+function paintSquishyToCanvas(ctx, size, squishy) {
+  ctx.clearRect(0, 0, size, size);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, size / 2 - 4, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.clip();
+
+  const grad = ctx.createLinearGradient(0, 0, size, size);
+  grad.addColorStop(0, "#ffb6e0");
+  grad.addColorStop(1, "#b6e6ff");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+
+  const entry = getSquishyImage(squishy);
+  if (entry.status === "loaded") {
+    ctx.drawImage(entry.img, 0, 0, size, size);
+  } else {
+    ctx.font = `${Math.floor(size * 0.5)}px serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(squishy.emoji, size / 2, size / 2 + size * 0.04);
+  }
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, size / 2 - 4, 0, Math.PI * 2);
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = "#ffffff";
+  ctx.stroke();
+}
+
+/* amount 0 = no distortion. amount > 0 pulls pixels toward the
+   center (a pinch / "inverted fisheye" squish). */
+function applyPinchWarp(ctx, size, amount) {
+  if (amount <= 0.001) return;
+  const src = ctx.getImageData(0, 0, size, size);
+  const dst = ctx.createImageData(size, size);
+  const srcData = src.data;
+  const dstData = dst.data;
+  const cx = size / 2;
+  const cy = size / 2;
+  const maxR = size / 2;
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const dx = x - cx;
+      const dy = y - cy;
+      const r = Math.sqrt(dx * dx + dy * dy) / maxR;
+      if (r > 1) continue; // stays transparent outside the circle
+      const dstIdx = (y * size + x) * 4;
+      const theta = Math.atan2(dy, dx);
+      const rs = Math.pow(r, 1 - amount); // pull from farther out toward center
+      const sx = Math.round(cx + Math.cos(theta) * rs * maxR);
+      const sy = Math.round(cy + Math.sin(theta) * rs * maxR);
+      const csx = Math.min(size - 1, Math.max(0, sx));
+      const csy = Math.min(size - 1, Math.max(0, sy));
+      const srcIdx = (csy * size + csx) * 4;
+      dstData[dstIdx] = srcData[srcIdx];
+      dstData[dstIdx + 1] = srcData[srcIdx + 1];
+      dstData[dstIdx + 2] = srcData[srcIdx + 2];
+      dstData[dstIdx + 3] = srcData[srcIdx + 3];
+    }
+  }
+  ctx.putImageData(dst, 0, 0);
+}
+
+function drawActiveSquishyCanvas(canvas, squishy, amount = 0) {
+  const ctx = canvas.getContext("2d");
+  const size = canvas.width;
+  paintSquishyToCanvas(ctx, size, squishy);
+  applyPinchWarp(ctx, size, amount);
+}
+
+function redrawActiveCanvas() {
+  const canvas = document.querySelector(".active-squishy-canvas");
+  if (!canvas) return;
+  drawActiveSquishyCanvas(canvas, getSquishy(state.active));
+}
+
+let squishAnimFrame = null;
+
+function playSquishAnimation(canvas, squishy) {
+  if (squishAnimFrame) cancelAnimationFrame(squishAnimFrame);
+  const duration = 450;
+  const start = performance.now();
+
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const wave = Math.sin(t * Math.PI); // 0 -> 1 -> 0, a press-and-release curve
+    const amount = wave * 0.45;
+    drawActiveSquishyCanvas(canvas, squishy, amount);
+    if (t < 1) {
+      squishAnimFrame = requestAnimationFrame(tick);
+    } else {
+      squishAnimFrame = null;
+      drawActiveSquishyCanvas(canvas, squishy, 0);
+    }
+  }
+  squishAnimFrame = requestAnimationFrame(tick);
+}
+
 function renderNav() {
   const nav = document.getElementById("side-nav");
   if (!nav) return;
@@ -121,8 +247,11 @@ function renderSquishyPanel() {
     <div class="points-badge">⭐ ${state.points} pts</div>
     <h3>My Squishy</h3>
     <div class="active-squishy-wrap">
-      ${squishyThumbHTML(active, "large", "active-thumb")}
+      <div class="squishy-thumb size-large active-thumb" title="Tap to squish!">
+        <canvas class="active-squishy-canvas" width="200" height="200"></canvas>
+      </div>
       <div class="active-squishy-name">${active.name}</div>
+      <div class="squish-hint">👆 tap to squish!</div>
     </div>
     ${
       ownedOthers.length
@@ -141,26 +270,30 @@ function renderSquishyPanel() {
     <div class="cheetah-strip"></div>
   `;
 
+  // paint + wire up the click-to-squish canvas
+  const activeCanvas = panel.querySelector(".active-squishy-canvas");
+  if (activeCanvas) {
+    drawActiveSquishyCanvas(activeCanvas, active, 0);
+    activeCanvas.addEventListener("click", () => {
+      playSquishAnimation(activeCanvas, active);
+    });
+  }
+
   // clicking a small owned squishy makes it active
   panel.querySelectorAll(".squishy-thumb.size-small").forEach((el) => {
     el.addEventListener("click", () => {
       state.active = Number(el.dataset.id);
       saveState(state);
       renderSquishyPanel();
-      const activeEl = panel.querySelector(".active-thumb");
-      if (activeEl) {
-        activeEl.classList.add("squish-bounce");
-        setTimeout(() => activeEl.classList.remove("squish-bounce"), 500);
-      }
+      bounceActiveSquishy();
     });
   });
 }
 
 function bounceActiveSquishy() {
-  const activeEl = document.querySelector(".active-thumb");
-  if (activeEl) {
-    activeEl.classList.add("squish-bounce");
-    setTimeout(() => activeEl.classList.remove("squish-bounce"), 500);
+  const canvas = document.querySelector(".active-squishy-canvas");
+  if (canvas) {
+    playSquishAnimation(canvas, getSquishy(state.active));
   }
 }
 
