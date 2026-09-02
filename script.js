@@ -23,9 +23,9 @@ const SQUISHY_PRICE = 100;
 const POINTS_PER_QUESTION = 5;
 
 const SPELLING_WORDS = [
-  "lay", "real", "trail", "sweet", "today", "dream", "sleep", "tea",
-  "treat", "afraid", "leave", "bait", "speed", "lead", "flavor",
-  "even", "between", "pavement",
+  "load", "open", "told", "yellow", "soak", "shadow", "toe", "follow",
+  "glow", "sold", "window", "almost", "most", "doe", "chosen", "approach",
+  "alone", "below",
 ];
 
 const VOCAB_WORDS = [
