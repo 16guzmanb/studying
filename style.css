@@ -424,8 +424,114 @@ a { color: inherit; text-decoration: none; }
 .finished-box .big-emoji { font-size: 3rem; }
 
 /* ============================================================
-   Store page
+   World Map quiz
    ============================================================ */
+
+.map-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 410px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 4px solid white;
+}
+
+.map-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.map-cover {
+  position: absolute;
+  background: var(--cream);
+  border: 2px solid var(--purple);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 1px;
+}
+
+.map-cover span {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  color: var(--success);
+  font-size: clamp(0.5rem, 2vw, 0.75rem);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.map-cover input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  color: var(--plum);
+  outline: none;
+  font-size: clamp(0.5rem, 2vw, 0.75rem);
+  padding: 0;
+}
+
+.map-cover.correct {
+  background: #d9f7e6;
+  border-color: var(--success);
+}
+
+.map-cover.revealed {
+  background: #fff3f3;
+  border-color: var(--error);
+}
+
+.map-cover.revealed input {
+  color: var(--error);
+  font-style: italic;
+}
+
+.map-cover.revealed input::placeholder {
+  color: var(--error);
+  opacity: 0.85;
+  font-style: italic;
+}
+
+.word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 18px;
+  max-width: 410px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.word-chip {
+  background: white;
+  border: 2px solid var(--purple);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--purple-deep);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.word-chip:hover {
+  background: var(--pink-soft);
+  transform: translateY(-2px);
+}
+
+.map-actions {
+  text-align: center;
+}
 
 .store-grid {
   display: grid;
