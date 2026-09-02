@@ -7,11 +7,15 @@
 /* ---------------- Data ---------------- */
 
 const SQUISHIES = [
-  { id: 1, name: "Squish Cube",    emoji: "🩷", img: "images/squishy1.png" },
+  { id: 1, name: "Squish Cube",     emoji: "🩷", img: "images/squishy1.png" },
   { id: 2, name: "Galaxy Dumpling", emoji: "🥟", img: "images/squishy2.png" },
-  { id: 3, name: "Pink Bao",       emoji: "🥮", img: "images/squishy3.png" },
-  { id: 4, name: "Galaxy Blob",    emoji: "🔮", img: "images/squishy4.png" },
-  { id: 5, name: "Butter Stick",   emoji: "🧈", img: "images/squishy5.png" },
+  { id: 3, name: "Pink Bao",        emoji: "🥮", img: "images/squishy3.png" },
+  { id: 4, name: "Galaxy Blob",     emoji: "🔮", img: "images/squishy4.png" },
+  { id: 5, name: "Butter Stick",    emoji: "🧈", img: "images/squishy5.png" },
+  { id: 6, name: "Honey Hamster",   emoji: "🐹", img: "images/squishy6.png" },
+  { id: 7, name: "Cheese Cube",     emoji: "🧀", img: "images/squishy7.png" },
+  { id: 8, name: "Sparkle Bun",     emoji: "✨", img: "images/squishy8.png" },
+  { id: 9, name: "Strawberry",      emoji: "🍓", img: "images/squishy9.png" },
 ];
 
 const FREE_SQUISHY_ID = 1;
@@ -19,9 +23,9 @@ const SQUISHY_PRICE = 100;
 const POINTS_PER_QUESTION = 5;
 
 const SPELLING_WORDS = [
-  "load", "open", "told", "yellow", "soak", "shadow", "toe", 
-   "follow", "glow", "sold", "window", "almost", "boast", "doe", 
-   "chosen", "approach", "alone", "below", 
+  "lay", "real", "trail", "sweet", "today", "dream", "sleep", "tea",
+  "treat", "afraid", "leave", "bait", "speed", "lead", "flavor",
+  "even", "between", "pavement",
 ];
 
 const VOCAB_WORDS = [
