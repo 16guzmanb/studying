@@ -19,18 +19,21 @@ const SQUISHY_PRICE = 100;
 const POINTS_PER_QUESTION = 5;
 
 const SPELLING_WORDS = [
-  "lay", "real", "trail", "sweet", "today", "dream", "sleep", "tea",
-  "treat", "afraid", "leave", "bait", "speed", "lead", "flavor",
-  "even", "between", "pavement",
+  "load", "open", "told", "yellow", "soak", "shadow", "toe", 
+   "follow", "glow", "sold", "window", "almost", "boast", "doe", 
+   "chosen", "approach", "alone", "below", 
 ];
 
 const VOCAB_WORDS = [
-  { term: "venturing",   def: "You are going somewhere that is unfamiliar and may be unsafe." },
-  { term: "predictable", def: "Just what you expected, with no surprises." },
-  { term: "emergency",   def: "An unexpected situation that requires help or quick action to make it better." },
-  { term: "consult",     def: "You look at it to find information." },
-  { term: "distract",    def: "You focus attention away from something." },
-  { term: "drastic",     def: "To do something very different from what you have always done." },
+  { term: "express",   def: "Show what you feel and think." },
+  { term: "convey",    def: "Communicate or make an idea understandable to someone." },
+  { term: "chronicle", def: "A story or account of a series of events." },
+  { term: "creative",  def: "Imagine ideas and invent new things." },
+  { term: "video",     def: "A recording of movements and actions that you can see on a television or computer screen." },
+  { term: "hydrant",   def: "An outdoor pipe firefighters use to get water to put out fires." },
+  { term: "block",     def: "A section of a community with streets on all of its sides." },
+  { term: "costumes",  def: "Special clothes that people may wear to pretend that they are from another time or place." },
+  { term: "march",     def: "Walk with even steps, often in a group." },
 ];
 
 const STORAGE_KEY = "squishyStudyState";
