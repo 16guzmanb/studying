@@ -40,6 +40,21 @@ const VOCAB_WORDS = [
   { term: "march",     def: "Walk with even steps, often in a group." },
 ];
 
+const MAP_LABELS = [
+  { id: "na",  text: "North America",        x: 17.6, y: 33.2, w: 13.5, h: 7.5 },
+  { id: "sa",  text: "South America",        x: 26.8, y: 59.2, w: 12,   h: 7   },
+  { id: "eu",  text: "Europe",               x: 55.6, y: 31.7, w: 11,   h: 5.5 },
+  { id: "af",  text: "Africa",               x: 51.2, y: 50.5, w: 10,   h: 5.5 },
+  { id: "as",  text: "Asia",                 x: 70.5, y: 33.2, w: 9,    h: 5.5 },
+  { id: "au",  text: "Australia",            x: 79.3, y: 61.2, w: 13,   h: 6   },
+  { id: "an",  text: "Antarctica",           x: 79.3, y: 96.4, w: 16,   h: 4.5 },
+  { id: "arc", text: "Arctic Ocean",         x: 59.8, y: 13.7, w: 20,   h: 6   },
+  { id: "nat", text: "North Atlantic Ocean", x: 32.2, y: 42.8, w: 12,   h: 9.5 },
+  { id: "sat", text: "South Atlantic Ocean", x: 40.7, y: 65.8, w: 12,   h: 9   },
+  { id: "io",  text: "Indian Ocean",         x: 70.2, y: 64.5, w: 13,   h: 7   },
+  { id: "so",  text: "Southern Ocean",       x: 57.8, y: 85.5, w: 23,   h: 6   },
+];
+
 const STORAGE_KEY = "squishyStudyState";
 
 /* ---------------- State ---------------- */
@@ -227,6 +242,7 @@ function renderNav() {
   const links = [
     { key: "spelling", label: "✏️ Spelling", href: "index.html" },
     { key: "vocab", label: "📖 Vocab", href: "vocab.html" },
+    { key: "geography", label: "🗺️ World Map", href: "geography.html" },
     { key: "store", label: "🛍️ Squishy Shop", href: "store.html" },
   ];
   nav.innerHTML = `
@@ -545,6 +561,137 @@ function initVocabPage() {
 }
 
 /* ============================================================
+   WORLD MAP PAGE
+   ============================================================ */
+
+function initMapPage() {
+  const root = document.getElementById("map-root");
+  if (!root) return;
+
+  let roundLabels = [];
+  let wordBank = [];
+  let resultState = {};
+
+  function newRound() {
+    roundLabels = shuffle(MAP_LABELS).slice(0, 3);
+    const others = MAP_LABELS.filter((l) => !roundLabels.includes(l));
+    const distractors = shuffle(others).slice(0, 3);
+    wordBank = shuffle([...roundLabels, ...distractors]);
+    resultState = {};
+    roundLabels.forEach((l) => (resultState[l.id] = "pending"));
+    render();
+  }
+
+  function coverHTML(l) {
+    const state = resultState[l.id];
+    const style = `left:${l.x - l.w / 2}%; top:${l.y - l.h / 2}%; width:${l.w}%; height:${l.h}%;`;
+    if (state === "correct") {
+      return `<div class="map-cover correct" style="${style}"><span>${l.text}</span></div>`;
+    }
+    if (state === "retry") {
+      return `<div class="map-cover revealed" style="${style}">
+        <input type="text" data-id="${l.id}" placeholder="${l.text}"
+               autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>`;
+    }
+    return `<div class="map-cover" style="${style}">
+      <input type="text" data-id="${l.id}" placeholder="?"
+             autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>`;
+  }
+
+  function render() {
+    const allDone = roundLabels.every((l) => resultState[l.id] === "correct");
+
+    root.innerHTML = `
+      <div class="map-wrap">
+        <img src="images/world-map.png" alt="World map with some labels to guess">
+        ${roundLabels.map(coverHTML).join("")}
+      </div>
+      <div class="word-bank">
+        ${wordBank.map((l) => `<span class="word-chip">${l.text}</span>`).join("")}
+      </div>
+      <div class="map-actions">
+        ${
+          allDone
+            ? `<button class="primary-btn" id="map-next">Next Round</button>`
+            : `<button class="submit-btn" id="map-submit">Check Answers</button>`
+        }
+      </div>
+      <div class="feedback" id="map-feedback"></div>
+    `;
+
+    let lastFocused = null;
+    const inputs = root.querySelectorAll(".map-cover input");
+    inputs.forEach((inp) => {
+      inp.addEventListener("focus", () => {
+        lastFocused = inp;
+      });
+      inp.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const btn = document.getElementById("map-submit");
+          if (btn) btn.click();
+        }
+      });
+    });
+    if (inputs.length) inputs[0].focus();
+
+    root.querySelectorAll(".word-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const target = lastFocused || root.querySelector(".map-cover input");
+        if (target) {
+          target.value = chip.textContent;
+          target.focus();
+        }
+      });
+    });
+
+    if (allDone) {
+      document.getElementById("map-next").addEventListener("click", newRound);
+    } else {
+      document.getElementById("map-submit").addEventListener("click", checkAnswers);
+    }
+  }
+
+  function checkAnswers() {
+    let anyWrong = false;
+    let anyNewlyCorrect = false;
+
+    roundLabels.forEach((l) => {
+      if (resultState[l.id] === "correct") return;
+      const input = root.querySelector(`input[data-id="${l.id}"]`);
+      if (!input) return;
+      const guess = input.value.trim().toLowerCase();
+      if (guess === l.text.toLowerCase()) {
+        resultState[l.id] = "correct";
+        addPoints(POINTS_PER_QUESTION);
+        anyNewlyCorrect = true;
+      } else {
+        resultState[l.id] = "retry";
+        anyWrong = true;
+      }
+    });
+
+    if (anyNewlyCorrect) {
+      refreshPointsDisplay();
+      bounceActiveSquishy();
+    }
+
+    render();
+
+    const fb = document.getElementById("map-feedback");
+    if (fb) {
+      fb.className = "feedback show " + (anyWrong ? "incorrect" : "correct");
+      fb.textContent = anyWrong
+        ? "Not quite — the answer is shown, type it to earn your points!"
+        : "All correct! Great job! 🎉";
+    }
+  }
+
+  newRound();
+}
+
+/* ============================================================
    STORE PAGE
    ============================================================ */
 
@@ -598,5 +745,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderSquishyPanel();
   initSpellingPage();
   initVocabPage();
+  initMapPage();
   initStorePage();
 });
