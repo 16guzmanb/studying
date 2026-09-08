@@ -96,6 +96,13 @@ function saveState(state) {
 
 let state = loadState();
 
+// one-time 300 point bonus (to make up for a cleared cache) — only ever fires once
+if (!state.cacheBonusClaimed) {
+  state.points += 300;
+  state.cacheBonusClaimed = true;
+  saveState(state);
+}
+
 function addPoints(amount) {
   state.points += amount;
   saveState(state);
