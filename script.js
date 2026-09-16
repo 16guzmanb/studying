@@ -23,6 +23,12 @@ const SQUISHIES = [
   { id: 14, name: "Violet Bao",      emoji: "💜", img: "images/squishy14.png" },
   { id: 15, name: "Ghost Cube",      emoji: "👻", img: "images/squishy15.png" },
   { id: 16, name: "S'mores Square",  emoji: "🍫", img: "images/squishy16.png" },
+  { id: 17, name: "Glitter Axolotl", emoji: "🩵", img: "images/squishy17.png" },
+  { id: 18, name: "Goofy Grin",      emoji: "🤪", img: "images/squishy18.png" },
+  { id: 19, name: "Peekaboo Eye",    emoji: "👁️", img: "images/squishy19.png" },
+  { id: 20, name: "Pink Pumpkin",    emoji: "🎃", img: "images/squishy20.png" },
+  { id: 21, name: "Sprinkle Cookie", emoji: "🍪", img: "images/squishy21.png" },
+  { id: 22, name: "Puppy Pal",       emoji: "🐶", img: "images/squishy22.png" },
 ];
 
 const FREE_SQUISHY_ID = 1;
@@ -30,18 +36,39 @@ const SQUISHY_PRICE = 100;
 const POINTS_PER_QUESTION = 5;
 
 const SPELLING_WORDS = [
-  "slight", "mild", "sight", "pie", "mind", "tie", "pilot", "might",
-  "lie", "tight", "blind", "fight", "height", "midnight", "frighten",
-  "silent", "excite", "combine",
+  "math", "toast", "easy", "socks", "Friday", "stuff", "paid", "cheese",
+  "eighteen", "elbow", "program", "shiny", "piles", "sticky", "holiday",
+  "moment", "eager", "blossom",
 ];
 
 const VOCAB_WORDS = [
-  { term: "desires",    def: "Wishes for certain things to happen." },
-  { term: "entry",      def: "A short note in a diary or a book." },
-  { term: "steep",      def: "Difficult to climb because it goes almost straight up." },
-  { term: "speed",      def: "Going very fast." },
-  { term: "breezy",     def: "Wind softly blowing." },
-  { term: "conductor",  def: "Someone who directs a group of people who sing or play musical instruments." },
+  { term: "assigned",   def: "When someone gives you some work to do." },
+  { term: "mosaics",    def: "Pictures or patterns made from pieces of glass, stone, or other materials." },
+  { term: "retains",    def: "He or she has something and keeps it." },
+  { term: "precious",   def: "Something important or valuable to you." },
+  { term: "demolition", def: "Tear down or destroy." },
+  { term: "projects",   def: "Tasks that take time and effort to complete." },
+];
+
+const SPELLING_CHOICES = [
+  { correct: "math",     wrong: ["mathe", "matt"] },
+  { correct: "toast",    wrong: ["tost", "toest"] },
+  { correct: "easy",     wrong: ["ezy", "easey"] },
+  { correct: "socks",    wrong: ["soks", "sox"] },
+  { correct: "Friday",   wrong: ["Fryday", "Fridai"] },
+  { correct: "stuff",    wrong: ["stuf", "stuph"] },
+  { correct: "paid",     wrong: ["payed", "paide"] },
+  { correct: "cheese",   wrong: ["cheeze", "chees"] },
+  { correct: "eighteen", wrong: ["eightteen", "eightene"] },
+  { correct: "elbow",    wrong: ["elbo", "elbowe"] },
+  { correct: "program",  wrong: ["progam", "programe"] },
+  { correct: "shiny",    wrong: ["shinny", "shiney"] },
+  { correct: "piles",    wrong: ["pyles", "pilse"] },
+  { correct: "sticky",   wrong: ["stickey", "stickie"] },
+  { correct: "holiday",  wrong: ["hollyday", "holliday"] },
+  { correct: "moment",   wrong: ["momment", "moement"] },
+  { correct: "eager",    wrong: ["eagar", "eger"] },
+  { correct: "blossom",  wrong: ["blosom", "blossem"] },
 ];
 
 const MAP_LABELS = [
@@ -252,6 +279,7 @@ function renderNav() {
   const page = document.body.dataset.page;
   const links = [
     { key: "spelling", label: "✏️ Spelling", href: "index.html" },
+    { key: "whichone", label: "🔤 Which One?", href: "whichone.html" },
     { key: "vocab", label: "📖 Vocab", href: "vocab.html" },
     { key: "geography", label: "🗺️ World Map", href: "geography.html" },
     { key: "store", label: "🛍️ Squishy Shop", href: "store.html" },
@@ -488,6 +516,80 @@ function initSpellingPage() {
       });
       input.focus();
     }
+  }
+
+  render();
+}
+
+/* ============================================================
+   WHICH ONE IS RIGHT? PAGE
+   ============================================================ */
+
+function initWhichOnePage() {
+  const root = document.getElementById("whichone-root");
+  if (!root) return;
+
+  let queue = shuffle(SPELLING_CHOICES);
+  let index = 0;
+
+  function render() {
+    if (index >= queue.length) {
+      root.innerHTML = `
+        <div class="finished-box">
+          <div class="big-emoji">🎉</div>
+          <h2>You finished every word!</h2>
+          <button class="primary-btn" id="play-again">Play Again</button>
+        </div>`;
+      document.getElementById("play-again").addEventListener("click", () => {
+        queue = shuffle(SPELLING_CHOICES);
+        index = 0;
+        render();
+      });
+      return;
+    }
+
+    const q = queue[index];
+    const choices = shuffle([q.correct, ...q.wrong]);
+    let answered = false;
+
+    root.innerHTML = `
+      <p class="progress-line">Word ${index + 1} of ${queue.length}</p>
+      <div class="quiz-card">
+        <p class="vocab-definition" style="font-size:1.1rem;">Which spelling is correct?</p>
+        <div class="vocab-choices">
+          ${choices
+            .map(
+              (c) => `<button class="vocab-choice" data-word="${c}">${c}</button>`
+            )
+            .join("")}
+        </div>
+        <button class="primary-btn next-btn" id="next-btn" style="display:none;">Next Word</button>
+      </div>`;
+
+    const buttons = root.querySelectorAll(".vocab-choice");
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (answered) return;
+        answered = true;
+        buttons.forEach((b) => (b.disabled = true));
+        if (btn.dataset.word === q.correct) {
+          btn.classList.add("correct");
+          addPoints(POINTS_PER_QUESTION);
+          refreshPointsDisplay();
+          bounceActiveSquishy();
+        } else {
+          btn.classList.add("incorrect");
+          const correctBtn = [...buttons].find((b) => b.dataset.word === q.correct);
+          if (correctBtn) correctBtn.classList.add("correct");
+        }
+        document.getElementById("next-btn").style.display = "inline-block";
+      });
+    });
+
+    document.getElementById("next-btn").addEventListener("click", () => {
+      index++;
+      render();
+    });
   }
 
   render();
@@ -755,6 +857,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderNav();
   renderSquishyPanel();
   initSpellingPage();
+  initWhichOnePage();
   initVocabPage();
   initMapPage();
   initStorePage();
