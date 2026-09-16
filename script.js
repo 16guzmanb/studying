@@ -374,15 +374,112 @@ function shuffle(array) {
   return arr;
 }
 
+const VOICE_PREFS_KEY = "squishyStudyVoicePrefs";
+
+function loadVoicePrefs() {
+  try {
+    const raw = localStorage.getItem(VOICE_PREFS_KEY);
+    if (!raw) return { voiceName: null, rate: 0.85 };
+    return JSON.parse(raw);
+  } catch (e) {
+    return { voiceName: null, rate: 0.85 };
+  }
+}
+
+function saveVoicePrefs(prefs) {
+  try {
+    localStorage.setItem(VOICE_PREFS_KEY, JSON.stringify(prefs));
+  } catch (e) {
+    /* ignore */
+  }
+}
+
+function getEnglishVoices() {
+  if (!("speechSynthesis" in window)) return [];
+  return window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en"));
+}
+
 function speak(word) {
   if (!("speechSynthesis" in window)) {
     alert("Sorry, this browser can't read words out loud.");
     return;
   }
   window.speechSynthesis.cancel();
+  const prefs = loadVoicePrefs();
   const utterance = new SpeechSynthesisUtterance(word);
-  utterance.rate = 0.85;
+  utterance.rate = prefs.rate || 0.85;
+
+  const voices = getEnglishVoices();
+  if (prefs.voiceName) {
+    const match = voices.find((v) => v.name === prefs.voiceName);
+    if (match) utterance.voice = match;
+  }
   window.speechSynthesis.speak(utterance);
+}
+
+/* ============================================================
+   VOICE SETTINGS (spelling page)
+   ============================================================ */
+
+function initVoiceSettings() {
+  const wrap = document.getElementById("voice-settings");
+  if (!wrap) return;
+
+  function populate() {
+    const voices = getEnglishVoices();
+    const prefs = loadVoicePrefs();
+    const select = document.getElementById("voice-pick");
+    if (!select) return;
+
+    if (!voices.length) {
+      select.innerHTML = `<option value="">Loading voices...</option>`;
+      return;
+    }
+
+    select.innerHTML = voices
+      .map((v) => `<option value="${v.name}">${v.name} (${v.lang})</option>`)
+      .join("");
+
+    if (prefs.voiceName && voices.some((v) => v.name === prefs.voiceName)) {
+      select.value = prefs.voiceName;
+    } else {
+      select.value = voices[0].name;
+      saveVoicePrefs({ ...prefs, voiceName: voices[0].name });
+    }
+  }
+
+  wrap.innerHTML = `
+    <div class="voice-settings-inner">
+      <label for="voice-pick">🔊 Voice</label>
+      <select id="voice-pick"></select>
+      <label for="voice-speed">Speed</label>
+      <input type="range" id="voice-speed" min="0.5" max="1.1" step="0.05">
+      <button class="voice-test-btn" id="voice-test">Test</button>
+    </div>`;
+
+  const prefs = loadVoicePrefs();
+  document.getElementById("voice-speed").value = prefs.rate || 0.85;
+
+  populate();
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = populate;
+  }
+
+  document.getElementById("voice-pick").addEventListener("change", (e) => {
+    const p = loadVoicePrefs();
+    saveVoicePrefs({ ...p, voiceName: e.target.value });
+    speak("hello");
+  });
+
+  document.getElementById("voice-speed").addEventListener("change", (e) => {
+    const p = loadVoicePrefs();
+    saveVoicePrefs({ ...p, rate: parseFloat(e.target.value) });
+    speak("hello");
+  });
+
+  document.getElementById("voice-test").addEventListener("click", () => {
+    speak("spelling");
+  });
 }
 
 /* ============================================================
@@ -856,6 +953,7 @@ function initStorePage() {
 document.addEventListener("DOMContentLoaded", () => {
   renderNav();
   renderSquishyPanel();
+  initVoiceSettings();
   initSpellingPage();
   initWhichOnePage();
   initVocabPage();
