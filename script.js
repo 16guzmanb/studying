@@ -29,6 +29,11 @@ const SQUISHIES = [
   { id: 20, name: "Pink Pumpkin",    emoji: "🎃", img: "images/squishy20.png" },
   { id: 21, name: "Sprinkle Cookie", emoji: "🍪", img: "images/squishy21.png" },
   { id: 22, name: "Puppy Pal",       emoji: "🐶", img: "images/squishy22.png" },
+  { id: 23, name: "Bunny Costume",   emoji: "🐰", img: "images/squishy23.png" },
+  { id: 24, name: "Rainbow Bun",     emoji: "🌈", img: "images/squishy24.png" },
+  { id: 25, name: "Purple Marble",   emoji: "🔮", img: "images/squishy25.png" },
+  { id: 26, name: "Pink Swirl",      emoji: "🎀", img: "images/squishy26.png" },
+  { id: 27, name: "Tie-Dye Butter",  emoji: "🧈", img: "images/squishy27.png" },
 ];
 
 const FREE_SQUISHY_ID = 1;
