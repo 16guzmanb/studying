@@ -41,39 +41,41 @@ const SQUISHY_PRICE = 100;
 const POINTS_PER_QUESTION = 5;
 
 const SPELLING_WORDS = [
-  "math", "toast", "easy", "socks", "Friday", "stuff", "paid", "cheese",
-  "eighteen", "elbow", "program", "shiny", "piles", "sticky", "holiday",
-  "moment", "eager", "blossom",
+  "splash", "strange", "scratch", "squeeze", "squeak", "squeal",
+  "screen", "split", "splat", "sprain", "sprint", "strip", "strap",
+  "scrap", "straddle", "splurge", "scrawl", "squirrel",
 ];
 
 const VOCAB_WORDS = [
-  { term: "assigned",   def: "When someone gives you some work to do." },
-  { term: "mosaics",    def: "Pictures or patterns made from pieces of glass, stone, or other materials." },
-  { term: "retains",    def: "He or she has something and keeps it." },
-  { term: "precious",   def: "Something important or valuable to you." },
-  { term: "demolition", def: "Tear down or destroy." },
-  { term: "projects",   def: "Tasks that take time and effort to complete." },
+  { term: "immigrants", def: "A person who leaves their home country to permanently live in another country." },
+  { term: "alternative", def: "Another choice." },
+  { term: "epidemic",   def: "Widespread outbreak of a contagious disease that affects many people at the same time." },
+  { term: "brutal",     def: "Mean, harsh, and/or tough." },
+  { term: "debris",     def: "Pieces left after something has been broken." },
+  { term: "colossal",   def: "Extremely large." },
+  { term: "shoddily",   def: "Something is made or done in a careless way, or is of poor quality." },
+  { term: "prejudice",  def: "Forming an unfair opinion about something before you know all the facts." },
 ];
 
 const SPELLING_CHOICES = [
-  { correct: "math",     wrong: ["mathe", "matt"] },
-  { correct: "toast",    wrong: ["tost", "toest"] },
-  { correct: "easy",     wrong: ["ezy", "easey"] },
-  { correct: "socks",    wrong: ["soks", "sox"] },
-  { correct: "Friday",   wrong: ["Fryday", "Fridai"] },
-  { correct: "stuff",    wrong: ["stuf", "stuph"] },
-  { correct: "paid",     wrong: ["payed", "paide"] },
-  { correct: "cheese",   wrong: ["cheeze", "chees"] },
-  { correct: "eighteen", wrong: ["eightteen", "eightene"] },
-  { correct: "elbow",    wrong: ["elbo", "elbowe"] },
-  { correct: "program",  wrong: ["progam", "programe"] },
-  { correct: "shiny",    wrong: ["shinny", "shiney"] },
-  { correct: "piles",    wrong: ["pyles", "pilse"] },
-  { correct: "sticky",   wrong: ["stickey", "stickie"] },
-  { correct: "holiday",  wrong: ["hollyday", "holliday"] },
-  { correct: "moment",   wrong: ["momment", "moement"] },
-  { correct: "eager",    wrong: ["eagar", "eger"] },
-  { correct: "blossom",  wrong: ["blosom", "blossem"] },
+  { correct: "splash",   wrong: ["splach", "splashe"] },
+  { correct: "strange",  wrong: ["strang", "strainge"] },
+  { correct: "scratch",  wrong: ["scrach", "skratch"] },
+  { correct: "squeeze",  wrong: ["squeez", "sqeeze"] },
+  { correct: "squeak",   wrong: ["squeek", "sqeak"] },
+  { correct: "squeal",   wrong: ["squeel", "sqeal"] },
+  { correct: "screen",   wrong: ["scren", "screne"] },
+  { correct: "split",    wrong: ["splitt", "spilt"] },
+  { correct: "splat",    wrong: ["splatt", "splaat"] },
+  { correct: "sprain",   wrong: ["spraine", "sprane"] },
+  { correct: "sprint",   wrong: ["sprintt", "sprent"] },
+  { correct: "strip",    wrong: ["strep", "stripe"] },
+  { correct: "strap",    wrong: ["strapp", "strape"] },
+  { correct: "scrap",    wrong: ["scrapp", "skrap"] },
+  { correct: "straddle", wrong: ["stradle", "straddel"] },
+  { correct: "splurge",  wrong: ["splerge", "splurg"] },
+  { correct: "scrawl",   wrong: ["scraul", "scrall"] },
+  { correct: "squirrel", wrong: ["squirel", "squrrel"] },
 ];
 
 const MAP_LABELS = [
