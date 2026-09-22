@@ -65,7 +65,7 @@ const SPELLING_CHOICES = [
   { correct: "squeak",   wrong: ["squeek", "sqeak"] },
   { correct: "squeal",   wrong: ["squeel", "sqeal"] },
   { correct: "screen",   wrong: ["scren", "screne"] },
-  { correct: "split",    wrong: ["splitt", "spilt"] },
+  { correct: "split",    wrong: ["splitttttt", "spli"] },
   { correct: "splat",    wrong: ["splatt", "splaat"] },
   { correct: "sprain",   wrong: ["spraine", "sprane"] },
   { correct: "sprint",   wrong: ["sprintt", "sprent"] },
