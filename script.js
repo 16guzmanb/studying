@@ -65,12 +65,12 @@ const SPELLING_CHOICES = [
   { correct: "squeak",   wrong: ["squeek", "sqeak"] },
   { correct: "squeal",   wrong: ["squeel", "sqeal"] },
   { correct: "screen",   wrong: ["scren", "screne"] },
-  { correct: "split",    wrong: ["splitttttt", "spli"] },
+  { correct: "split",    wrong: ["splitt", "spilt"] },
   { correct: "splat",    wrong: ["splatt", "splaat"] },
   { correct: "sprain",   wrong: ["spraine", "sprane"] },
   { correct: "sprint",   wrong: ["sprintt", "sprent"] },
-  { correct: "strip",    wrong: ["stryp", "stip"] },
-  { correct: "strap",    wrong: ["srap", "starp"] },
+  { correct: "strip",    wrong: ["strep", "stripe"] },
+  { correct: "strap",    wrong: ["strapp", "strape"] },
   { correct: "scrap",    wrong: ["scrapp", "skrap"] },
   { correct: "straddle", wrong: ["stradle", "straddel"] },
   { correct: "splurge",  wrong: ["splerge", "splurg"] },
@@ -92,6 +92,36 @@ const MAP_LABELS = [
   { id: "io",  text: "Indian Ocean",         x: 70.2, y: 64.5, w: 13,   h: 7   },
   { id: "so",  text: "Southern Ocean",       x: 57.8, y: 85.5, w: 23,   h: 6   },
 ];
+
+const MATH_ITEMS = [
+  "labubus", "squishies", "stickers", "gumballs", "marbles", "cookies",
+  "crayons", "seashells", "pom-poms", "bracelets", "erasers", "buttons",
+];
+
+const MATH_GROUP_NAMES = [
+  "sisters", "friends", "cousins", "teammates", "neighbors", "classmates",
+];
+
+const NUMBERLINE_MAX = 20;
+
+function generateDivisionProblem() {
+  const groups = 2 + Math.floor(Math.random() * 5); // 2-6 groups
+  const perGroup = 2 + Math.floor(Math.random() * 9); // 2-10 each
+  const total = groups * perGroup;
+  const item = MATH_ITEMS[Math.floor(Math.random() * MATH_ITEMS.length)];
+  const who = MATH_GROUP_NAMES[Math.floor(Math.random() * MATH_GROUP_NAMES.length)];
+  const text = `There are ${total} ${item}. ${groups} ${who} share them equally. How many ${item} does each person get?`;
+  return { text, total, groups, answer: perGroup };
+}
+
+function generateMultiplicationProblem() {
+  const groups = 2 + Math.floor(Math.random() * 6); // 2-7 groups
+  const each = 2 + Math.floor(Math.random() * 9); // 2-10 each
+  const item = MATH_ITEMS[Math.floor(Math.random() * MATH_ITEMS.length)];
+  const who = MATH_GROUP_NAMES[Math.floor(Math.random() * MATH_GROUP_NAMES.length)];
+  const text = `${groups} ${who} each have ${each} ${item}. How many ${item} are there in all?`;
+  return { text, answer: groups * each };
+}
 
 const STORAGE_KEY = "squishyStudyState";
 
@@ -288,6 +318,7 @@ function renderNav() {
     { key: "spelling", label: "✏️ Spelling", href: "index.html" },
     { key: "whichone", label: "🔤 Which One?", href: "whichone.html" },
     { key: "vocab", label: "📖 Vocab", href: "vocab.html" },
+    { key: "math", label: "🔢 Math", href: "math.html" },
     { key: "geography", label: "🗺️ World Map", href: "geography.html" },
     { key: "store", label: "🛍️ Squishy Shop", href: "store.html" },
   ];
@@ -909,6 +940,241 @@ function initMapPage() {
 }
 
 /* ============================================================
+   MATH PAGE
+   ============================================================ */
+
+const MATH_PEN_COLORS = ["#ff6fb5", "#9b5de5", "#5ec8f2", "#2fbf71", "#ffb703", "#4a1c63"];
+
+function initMathPage() {
+  const root = document.getElementById("math-root");
+  if (!root) return;
+
+  let mode = "division";
+
+  function renderTabs() {
+    return `
+      <div class="math-tabs">
+        <button class="math-tab ${mode === "division" ? "active" : ""}" data-mode="division">➗ Division</button>
+        <button class="math-tab ${mode === "multiplication" ? "active" : ""}" data-mode="multiplication">✖️ Multiplication</button>
+        <button class="math-tab ${mode === "numberline" ? "active" : ""}" data-mode="numberline">📏 Number Line</button>
+      </div>
+      <div id="math-mode-root"></div>`;
+  }
+
+  function renderShell() {
+    root.innerHTML = renderTabs();
+    root.querySelectorAll(".math-tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        mode = btn.dataset.mode;
+        renderShell();
+      });
+    });
+    const modeRoot = document.getElementById("math-mode-root");
+    if (mode === "division") renderDivision(modeRoot);
+    else if (mode === "multiplication") renderMultiplication(modeRoot);
+    else renderNumberLine(modeRoot);
+  }
+
+  // Shared answer-check UI: renders input + submit, handles retry-until-correct,
+  // then calls onNext() when the person asks for a new problem.
+  function renderAnswerArea(container, correctAnswer, onNext) {
+    const box = document.createElement("div");
+    box.className = "math-answer-box";
+    box.innerHTML = `
+      <input type="number" class="spelling-input math-answer-input" placeholder="Your answer" autocomplete="off">
+      <button class="submit-btn" id="math-submit">Submit</button>
+      <div class="feedback" id="math-feedback"></div>
+    `;
+    container.appendChild(box);
+
+    const input = box.querySelector(".math-answer-input");
+    const submit = box.querySelector("#math-submit");
+    const feedback = box.querySelector("#math-feedback");
+    let retryMode = false;
+
+    function trySubmit() {
+      const guess = parseInt(input.value, 10);
+      if (isNaN(guess)) return;
+      if (guess === correctAnswer) {
+        addPoints(POINTS_PER_QUESTION);
+        refreshPointsDisplay();
+        bounceActiveSquishy();
+        feedback.textContent = retryMode
+          ? `Nice fix! +${POINTS_PER_QUESTION} pts 🎉`
+          : `Correct! +${POINTS_PER_QUESTION} pts 🎉`;
+        feedback.className = "feedback show correct";
+        submit.disabled = true;
+        input.disabled = true;
+        const nextBtn = document.createElement("button");
+        nextBtn.className = "primary-btn next-btn";
+        nextBtn.textContent = "Next Problem";
+        nextBtn.addEventListener("click", onNext);
+        box.appendChild(nextBtn);
+      } else if (!retryMode) {
+        retryMode = true;
+        feedback.textContent = `Not quite! The answer is ${correctAnswer}. Type it to earn your points.`;
+        feedback.className = "feedback show incorrect";
+        input.value = "";
+        input.focus();
+      } else {
+        feedback.textContent = "Almost — try typing that number again!";
+        feedback.className = "feedback show incorrect";
+      }
+    }
+
+    submit.addEventListener("click", trySubmit);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") trySubmit();
+    });
+    input.focus();
+  }
+
+  function renderDivision(container) {
+    const problem = generateDivisionProblem();
+    container.innerHTML = `
+      <div class="quiz-card math-card">
+        <p class="math-problem-text">${problem.text}</p>
+        <p class="math-hint">Pick a color and circle equal groups to help you figure it out!</p>
+        <div class="pen-palette" id="pen-palette">
+          ${MATH_PEN_COLORS.map(
+            (c, i) => `<button class="pen-swatch ${i === 0 ? "active" : ""}" style="background:${c}" data-color="${c}"></button>`
+          ).join("")}
+          <button class="clear-btn" id="clear-canvas">Clear</button>
+        </div>
+        <div class="dot-board-wrap" id="dot-board-wrap">
+          <div class="dot-layer" id="dot-layer">
+            ${Array.from({ length: problem.total }, () => `<span class="math-dot"></span>`).join("")}
+          </div>
+          <canvas class="draw-canvas" id="draw-canvas"></canvas>
+        </div>
+      </div>
+      <div id="math-answer-container"></div>
+    `;
+
+    setupDrawingBoard();
+    renderAnswerArea(document.getElementById("math-answer-container"), problem.answer, () =>
+      renderDivision(container)
+    );
+  }
+
+  function renderMultiplication(container) {
+    const problem = generateMultiplicationProblem();
+    container.innerHTML = `
+      <div class="quiz-card math-card">
+        <p class="math-problem-text">${problem.text}</p>
+      </div>
+      <div id="math-answer-container"></div>
+    `;
+    renderAnswerArea(document.getElementById("math-answer-container"), problem.answer, () =>
+      renderMultiplication(container)
+    );
+  }
+
+  function renderNumberLine(container) {
+    const target = Math.floor(Math.random() * (NUMBERLINE_MAX + 1));
+    const svgW = 600;
+    const svgH = 120;
+    const marginX = 30;
+    const usableW = svgW - marginX * 2;
+    const xFor = (n) => marginX + (n / NUMBERLINE_MAX) * usableW;
+
+    let ticks = "";
+    for (let n = 0; n <= NUMBERLINE_MAX; n++) {
+      const x = xFor(n);
+      const isFive = n % 5 === 0;
+      ticks += `<line x1="${x}" y1="50" x2="${x}" y2="${isFive ? 70 : 62}" stroke="#4a1c63" stroke-width="${isFive ? 2.5 : 1.5}" />`;
+      if (isFive) {
+        ticks += `<text x="${x}" y="90" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="700" font-size="16" fill="#4a1c63">${n}</text>`;
+      }
+    }
+
+    const markerX = xFor(target);
+
+    container.innerHTML = `
+      <div class="quiz-card math-card">
+        <p class="math-problem-text">What number is the dot pointing to?</p>
+        <svg viewBox="0 0 ${svgW} ${svgH}" class="number-line-svg" xmlns="http://www.w3.org/2000/svg">
+          <line x1="${marginX}" y1="60" x2="${svgW - marginX}" y2="60" stroke="#4a1c63" stroke-width="3" />
+          ${ticks}
+          <circle cx="${markerX}" cy="60" r="8" fill="#ff6fb5" stroke="#4a1c63" stroke-width="2" />
+        </svg>
+      </div>
+      <div id="math-answer-container"></div>
+    `;
+    renderAnswerArea(document.getElementById("math-answer-container"), target, () =>
+      renderNumberLine(container)
+    );
+  }
+
+  function setupDrawingBoard() {
+    const wrap = document.getElementById("dot-board-wrap");
+    const dotLayer = document.getElementById("dot-layer");
+    const canvas = document.getElementById("draw-canvas");
+    if (!wrap || !canvas) return;
+
+    function sizeCanvas() {
+      const rect = dotLayer.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      wrap.style.height = rect.height + "px";
+    }
+    sizeCanvas();
+
+    const ctx = canvas.getContext("2d");
+    ctx.lineWidth = 5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    let drawing = false;
+    let currentColor = MATH_PEN_COLORS[0];
+
+    function pos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const point = e.touches ? e.touches[0] : e;
+      return { x: point.clientX - rect.left, y: point.clientY - rect.top };
+    }
+
+    function start(e) {
+      drawing = true;
+      const p = pos(e);
+      ctx.strokeStyle = currentColor;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      e.preventDefault();
+    }
+    function move(e) {
+      if (!drawing) return;
+      const p = pos(e);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      e.preventDefault();
+    }
+    function end() {
+      drawing = false;
+    }
+
+    canvas.addEventListener("mousedown", start);
+    canvas.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", end);
+    canvas.addEventListener("touchstart", start, { passive: false });
+    canvas.addEventListener("touchmove", move, { passive: false });
+    canvas.addEventListener("touchend", end);
+
+    document.getElementById("pen-palette").querySelectorAll(".pen-swatch").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        currentColor = btn.dataset.color;
+        document.querySelectorAll(".pen-swatch").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+    document.getElementById("clear-canvas").addEventListener("click", () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+  }
+
+  renderShell();
+}
+
+/* ============================================================
    STORE PAGE
    ============================================================ */
 
@@ -964,6 +1230,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSpellingPage();
   initWhichOnePage();
   initVocabPage();
+  initMathPage();
   initMapPage();
   initStorePage();
 });
