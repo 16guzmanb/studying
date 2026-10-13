@@ -41,9 +41,9 @@ const SQUISHY_PRICE = 100;
 const POINTS_PER_QUESTION = 5;
 
 const SPELLING_WORDS = [
-  "ledge", "nudge", "smudge", "budge", "ridge", "wedge", "quiet",
-  "circus", "second", "quart", "quick", "comma", "stage", "huge",
-  "quiver", "constant", "budget", "enrage",
+  "wreck", "knee", "wrap", "knot", "knife", "write", "wring", "knew", 
+  "knock", "knight", "wrong", "wrench", "wrist", "wrote", "kneel", 
+  "knitting", "wreath", "unwrapped"
 ];
 
 const VOCAB_WORDS = [
@@ -59,24 +59,24 @@ const VOCAB_WORDS = [
 ];
 
 const SPELLING_CHOICES = [
-  { correct: "ledge",    wrong: ["ledje", "ledg"] },
-  { correct: "nudge",    wrong: ["nudje", "nudg"] },
-  { correct: "smudge",   wrong: ["smudje", "smudg"] },
-  { correct: "budge",    wrong: ["budje", "budg"] },
-  { correct: "ridge",    wrong: ["ridje", "rige"] },
-  { correct: "wedge",    wrong: ["wedje", "wedg"] },
-  { correct: "quiet",    wrong: ["kwiet", "quiett"] },
-  { correct: "circus",   wrong: ["circis", "cirkus"] },
-  { correct: "second",   wrong: ["secund", "secend"] },
-  { correct: "quart",    wrong: ["kwart", "quort"] },
-  { correct: "quick",    wrong: ["kwick", "quik"] },
-  { correct: "comma",    wrong: ["commah", "cauma"] },
-  { correct: "stage",    wrong: ["stagge", "stadge"] },
-  { correct: "huge",     wrong: ["huje", "hugue"] },
-  { correct: "quiver",   wrong: ["kwiver", "quivver"] },
-  { correct: "constant", wrong: ["constent", "constint"] },
-  { correct: "budget",   wrong: ["budjet", "budgett"] },
-  { correct: "enrage",   wrong: ["enraje", "enrag"] },
+  { correct: "wreck",      wrong: ["wrek", "wrekk"] },
+  { correct: "knee",       wrong: ["kney", "knie"] },
+  { correct: "wrap",       wrong: ["wrapp", "wrep"] },
+  { correct: "knot",       wrong: ["knott", "knoat"] },
+  { correct: "knife",      wrong: ["knif", "knief"] },
+  { correct: "write",      wrong: ["writte", "wryte"] },
+  { correct: "wring",      wrong: ["wreeng", "wrinng"] },
+  { correct: "knew",       wrong: ["knoo", "knu"] },
+  { correct: "knock",      wrong: ["knok", "knocc"] },
+  { correct: "knight",     wrong: ["knite", "knyght"] },
+  { correct: "wrong",      wrong: ["wroung", "wraung"] },
+  { correct: "wrench",     wrong: ["wrentch", "wrenche"] },
+  { correct: "wrist",      wrong: ["wryst", "wristt"] },
+  { correct: "wrote",      wrong: ["wrot", "wroat"] },
+  { correct: "kneel",      wrong: ["kneal", "kniel"] },
+  { correct: "knitting",   wrong: ["kniting", "knittyng"] },
+  { correct: "wreath",     wrong: ["wreeth", "wreith"] },
+  { correct: "unwrapped",  wrong: ["unwraped", "unnwrapped"] },
 ];
 
 const MAP_LABELS = [
