@@ -34,6 +34,9 @@ const SQUISHIES = [
   { id: 25, name: "Purple Marble",   emoji: "🔮", img: "images/squishy25.png" },
   { id: 26, name: "Pink Swirl",      emoji: "🎀", img: "images/squishy26.png" },
   { id: 27, name: "Tie-Dye Butter",  emoji: "🧈", img: "images/squishy27.png" },
+  { id: 28, name: "Cotton Candy Slime", emoji: "🍭", img: "images/squishy28.png" },
+  { id: 29, name: "Galaxy Slime",    emoji: "🌌", img: "images/squishy29.png" },
+  { id: 30, name: "Gold Slime",      emoji: "🪙", img: "images/squishy30.png" },
 ];
 
 const FREE_SQUISHY_ID = 1;
